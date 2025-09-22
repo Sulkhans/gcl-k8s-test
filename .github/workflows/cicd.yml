@@ -26,13 +26,6 @@ jobs:
           docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp:latest ./nodeapp
           docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp2:latest ./nodeapp2
 
-      - name: Install Google Cloud SDK
-        run: |
-          echo "Installing Google Cloud SDK"
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-          sudo apt-get update && sudo apt-get install google-cloud-sdk
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -41,10 +34,13 @@ jobs:
       - name: Set up GCloud SDK
         run: |
           echo "Setting up Google Cloud SDK"
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > "${HOME}/gcloud-key.json"
-          gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
+          gcloud auth activate-service-account --key-file="${{ github.workspace }}/gha-creds-f7ac10595901f0af.json"
           gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
           gcloud config set compute/zone "${{ secrets.GCP_COMPUTE_ZONE }}"
+
+      - name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_COMPUTE_ZONE }} --project ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GKE
         run: |
