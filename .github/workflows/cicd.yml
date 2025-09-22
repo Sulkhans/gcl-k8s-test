@@ -49,6 +49,4 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f k8s/ingress.yaml
-          kubectl set image deployment/nodeapp nodeapp=${{ secrets.DOCKER_USERNAME }}/nodeapp:latest
-          kubectl set image deployment/nodeapp2 nodeapp2=${{ secrets.DOCKER_USERNAME }}/nodeapp2:latest
+          kubectl apply -f ./k8s/
