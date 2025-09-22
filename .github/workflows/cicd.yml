@@ -34,7 +34,8 @@ jobs:
       - name: Set up GCloud SDK
         run: |
           echo "Setting up Google Cloud SDK"
-          gcloud auth activate-service-account --key-file="${{ github.workspace }}/gha-creds-f7ac10595901f0af.json"
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > "${HOME}/gcloud-key.json"
+          gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
           gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
           gcloud config set compute/zone "${{ secrets.GCP_COMPUTE_ZONE }}"
 
