@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodeapp2
+  template:
+    metadata:
+      labels:
+        app: nodeapp2
+    spec:
+      containers:
+        - name: nodeapp2
+          image: sulkhan16/nodeapp2:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeapp2-service
+spec:
+  selector:
+    app: nodeapp2
+  ports:
+    - port: 80
+      targetPort: 3000
