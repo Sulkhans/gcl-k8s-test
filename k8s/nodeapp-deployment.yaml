@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: nodeapp
-          image: sulkhan16/nodeapp:1.0
+          image: sulkhan16/nodeapp:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
