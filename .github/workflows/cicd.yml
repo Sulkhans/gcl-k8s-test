@@ -1,4 +1,4 @@
-name: CI/CD for google cloud kubernetes
+name: CI/CD for Google Cloud Kubernetes
 
 on:
   push:
@@ -31,17 +31,21 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up GCloud SDK
-        run: |
-          echo "Setting up Google Cloud SDK"
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > "${HOME}/gcloud-key.json"
-          gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
-          gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
-          gcloud config set compute/zone "${{ secrets.GCP_COMPUTE_ZONE }}"
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Get GKE credentials
+      - name: Install GKE gcloud auth plugin
         run: |
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_COMPUTE_ZONE }} --project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud components install gke-gcloud-auth-plugin
+          echo "USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
+            --zone ${{ secrets.GCP_COMPUTE_ZONE }} \
+            --project ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GKE
         run: |
