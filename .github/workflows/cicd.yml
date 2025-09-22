@@ -23,6 +23,12 @@ jobs:
 
       - name: Build and push Docker images
         run: |
+          # Use git SHA as tag for versioning
+          IMAGE_TAG=${{ github.sha }}
+          docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp:${IMAGE_TAG} ./nodeapp
+          docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp2:${IMAGE_TAG} ./nodeapp2
+
+          # Also tag as latest for convenience
           docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp:latest ./nodeapp
           docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/nodeapp2:latest ./nodeapp2
 
@@ -47,6 +53,12 @@ jobs:
             --zone ${{ secrets.GCP_COMPUTE_ZONE }} \
             --project ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Deploy to GKE
+      - name: Update deployment images and deploy
         run: |
+          # Update the image tags in the deployment files
+          IMAGE_TAG=${{ github.sha }}
+          sed -i "s|sulkhan16/nodeapp:latest|${{ secrets.DOCKER_USERNAME }}/nodeapp:${IMAGE_TAG}|g" ./k8s/nodeapp-deployment.yaml
+          sed -i "s|sulkhan16/nodeapp2:latest|${{ secrets.DOCKER_USERNAME }}/nodeapp2:${IMAGE_TAG}|g" ./k8s/nodeapp2-deployment.yaml
+
+          # Apply the updated deployments
           kubectl apply -f ./k8s/
