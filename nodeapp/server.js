@@ -6,6 +6,10 @@ app.get("/", (req, res) => {
   res.send("TEST - Hello from updated NodeApp 1!" + new Date(0));
 });
 
+app.get("/a", (req, res) => {
+  res.send("TEST - Hello from updated NodeApp 1!" + new Date(0));
+});
+
 app.listen(PORT, () => {
   console.log(`NodeApp1 running on port ${PORT}`);
 });
